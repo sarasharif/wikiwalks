@@ -6,7 +6,29 @@ function initMap() {
 
   map = new google.maps.Map(document.getElementById('map'), {
     center: sf,
-    zoom: 12
+    zoom: 12,
+    styles: [
+      {
+        featureType: 'all',
+        stylers: [
+          // { hue: '#00ffe6' },
+          { saturation: -70 }
+        ]
+      },{
+        featureType: 'road.arterial',
+        elementType: 'geometry',
+        stylers: [
+          { hue: '#00ffee' },
+          { saturation: 50 }
+        ]
+      },{
+        featureType: 'poi.business',
+        elementType: 'labels',
+        stylers: [
+          { visibility: 'off' }
+        ]
+      }
+    ]
   });
 
   var input = document.getElementById('pac-input');
@@ -62,31 +84,6 @@ function initMap() {
     map.fitBounds(bounds);
   });
 
-  // var request = {
-  //   location: sf,
-  //   radius: '1000',
-  //   query: 'tourist attraction'
-  // };
-//   var service = new google.maps.places.PlacesService(map);
-//   service.textSearch(request, callback);
-// }
-//
-// function callback(results, status) {
-//   if (status === google.maps.places.PlacesServiceStatus.OK) {
-//     for (var i = 0; i < results.length; i++) {
-//       createMarker(results[i]);
-//     }
-//   }
-// }
-//
-// function createMarker(place) {
-//   var placeLoc = place.geometry.location;
-//   var marker = new google.maps.Marker({
-//     map: map,
-//     position: place.geometry.location
-//   });
-//
-
 }
 
 function wikiLookup(place) {
@@ -105,7 +102,7 @@ function httpGetAsync(theUrl) {
   };
   wikiRequest.open("GET", theUrl, true); // true for asynchronous
   wikiRequest.setRequestHeader( 'Api-User-Agent', 'sara@sharif.com');
-  // wikiRequest.setRequestHeader( 'Access-Control-Allow-Origin', 'sara@sharif.com');
+  wikiRequest.setRequestHeader( 'Access-Control-Allow-Origin', 'https://sarasharif.github.io');
   wikiRequest.send(null);
 }
 
