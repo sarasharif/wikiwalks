@@ -11,7 +11,6 @@ function initMap() {
       {
         featureType: 'all',
         stylers: [
-          // { hue: '#00ffe6' },
           { saturation: -70 }
         ]
       },{
@@ -102,7 +101,7 @@ function httpGetAsync(theUrl) {
   };
   wikiRequest.open("GET", theUrl, true); // true for asynchronous
   wikiRequest.setRequestHeader( 'Api-User-Agent', 'sara@sharif.com');
-  wikiRequest.setRequestHeader( 'Access-Control-Allow-Origin', 'https://sarasharif.github.io');
+  wikiRequest.setRequestHeader( 'Allow-Control-Allow-Origin', '*');
   wikiRequest.send(null);
 }
 
