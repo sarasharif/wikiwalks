@@ -1,31 +1,21 @@
-var map;
-var infowindow;
-
 function initMap() {
   var sf = {lat: 37.7749, lng: -122.4194};
 
-  map = new google.maps.Map(document.getElementById('map'), {
+  var map = new google.maps.Map(document.getElementById('map'), {
     center: sf,
     zoom: 12,
     styles: [
       {
         featureType: 'all',
-        stylers: [
-          { saturation: -70 }
-        ]
+        stylers: [ { saturation: -70 } ]
       },{
         featureType: 'road.arterial',
         elementType: 'geometry',
-        stylers: [
-          { hue: '#00ffee' },
-          { saturation: 50 }
-        ]
+        stylers: [ { saturation: 10 } ]
       },{
         featureType: 'poi.business',
         elementType: 'labels',
-        stylers: [
-          { visibility: 'off' }
-        ]
+        stylers: [ { visibility: 'off' } ]
       }
     ]
   });
@@ -39,14 +29,12 @@ function initMap() {
     searchBox.setBounds(map.getBounds());
   });
 
-  infowindow = new google.maps.InfoWindow();
-
+  var infowindow = new google.maps.InfoWindow();
   searchBox.addListener('places_changed', function() {
     var places = searchBox.getPlaces();
-    if (places.length == 0) {
+    if (places.length === 0) {
       return;
     }
-
     markers.forEach(function(marker) {
       marker.setMap(null);
     });
@@ -55,8 +43,7 @@ function initMap() {
     var bounds = new google.maps.LatLngBounds();
     places.forEach(function(place) {
       if (!place.geometry) {
-        console.log("Returned place contains no geometry");
-        return;
+         return;
       }
 
       var marker = new google.maps.Marker({
@@ -74,7 +61,6 @@ function initMap() {
       markers.push(marker);
 
       if (place.geometry.viewport) {
-        // Only geocodes have viewport.
         bounds.union(place.geometry.viewport);
       } else {
         bounds.extend(place.geometry.location);
@@ -82,29 +68,36 @@ function initMap() {
     });
     map.fitBounds(bounds);
   });
-
 }
 
 function wikiLookup(place) {
-  var theUrl = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&redirects=&titles=" + place;
-  httpGetAsync(theUrl);
-}
-
-function httpGetAsync(theUrl) {
-  var wikiRequest = new XMLHttpRequest();
-  wikiRequest.onreadystatechange = function() {
-    if (wikiRequest.readyState == 4 && wikiRequest.status == 200)
-      var res = wikiRequest.responseText;
-      var pageid = Object.keys(JSON.parse(res).query.pages);
-      var info = JSON.parse(res).query.pages[pageid].extract;
+  var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&redirects=&titles=" + place;
+  $wgCrossSiteAJAXdomains = ['/http:\/\/[a-z\-]{2,}\.wikipedia\.org/', '/http:\/\/[a-z\-]{2,}\.wikinews\.org/', '/http:\/\/[a-z\-]{2,}\.wiktionary\.org/', '/http:\/\/[a-z\-]{2,}\.wikibooks\.org/', '/http:\/\/[a-z\-]{2,}\.wikiversity\.org/', '/http:\/\/[a-z\-]{2,}\.wikipedia\.org/', '/http:\/\/[a-z\-]{2,}\.wikisource\.org/', '/http:\/\/[a-z\-]{2,}\.wikiquote\.org/', '/http:\/\/(?!upload)[a-z\-]{2,}\.wikimedia\.org/' ];
+  $.ajax({
+    url: url,
+    data: {
+        action: 'query',
+        meta: 'userinfo',
+        format: 'json',
+        origin: '*'
+    },
+    xhrFields: {
+        withCredentials: false
+    },
+    dataType: 'json',
+    success: function (data) {
+      var info = parseWiki(data);
       convertToAudio(info);
-  };
-  wikiRequest.open("GET", theUrl, true); // true for asynchronous
-  wikiRequest.setRequestHeader( 'Api-User-Agent', 'sara@sharif.com');
-  wikiRequest.setRequestHeader( 'Allow-Control-Allow-Origin', '*');
-  wikiRequest.send(null);
+    }
+  });
 }
 
-function convertToAudio(words) {
-  responsiveVoice.speak(words);
+function parseWiki(data) {
+  var pageid = Object.keys(data.query.pages);
+  info = data.query.pages[pageid].extract;
+  return info;
+}
+
+function convertToAudio(info) {
+  responsiveVoice.speak(info);
 }

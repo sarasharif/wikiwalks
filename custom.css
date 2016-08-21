@@ -53,28 +53,3 @@ html, body {
 #target {
   width: 345px;
 }
-
-#notice {
-  font-family: Roboto;
-  z-index: 3;
-  display: block;
-  width: 150px;
-  height: auto;
-  position: fixed;
-  right: 0px;
-  background-color: rgba(86,86,86,.85);
-  color: white;
-  text-align: center;
-  margin: 10px;
-  padding: 8px;
-  border-radius: 2px;
-}
-
-#notice:hover {
-  background-color: rgba(86,86,86,.95);
-}
-
-a {
-  color: inherit; /* blue colors for links too */
-  text-decoration: inherit; /* no underline */
-}
