@@ -1,8 +1,7 @@
 function initMap() {
-  var sf = {lat: 37.7749, lng: -122.4194};
 
   var map = new google.maps.Map(document.getElementById('map'), {
-    center: sf,
+    center: {lat: 37.7749, lng: -122.4194},
     zoom: 12,
     styles: [
       {
@@ -71,18 +70,15 @@ function initMap() {
 }
 
 function wikiLookup(place) {
-  var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&redirects=&titles=" + place;
   $wgCrossSiteAJAXdomains = ['/http:\/\/[a-z\-]{2,}\.wikipedia\.org/', '/http:\/\/[a-z\-]{2,}\.wikinews\.org/', '/http:\/\/[a-z\-]{2,}\.wiktionary\.org/', '/http:\/\/[a-z\-]{2,}\.wikibooks\.org/', '/http:\/\/[a-z\-]{2,}\.wikiversity\.org/', '/http:\/\/[a-z\-]{2,}\.wikipedia\.org/', '/http:\/\/[a-z\-]{2,}\.wikisource\.org/', '/http:\/\/[a-z\-]{2,}\.wikiquote\.org/', '/http:\/\/(?!upload)[a-z\-]{2,}\.wikimedia\.org/' ];
   $.ajax({
-    url: url,
+    url: "https://en.wikipedia.org/w/api.php?prop=extracts&explaintext&exintro&redirects=",
     data: {
         action: 'query',
         meta: 'userinfo',
         format: 'json',
-        origin: '*'
-    },
-    xhrFields: {
-        withCredentials: false
+        origin: '*',
+        titles: place
     },
     dataType: 'json',
     success: function (data) {
