@@ -9,36 +9,84 @@ function initMap() {
     zoom: 12
   });
 
+  var input = document.getElementById('pac-input');
+  var searchBox = new google.maps.places.SearchBox(input);
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+  var markers = [];
+  map.addListener('bounds_changed', function() {
+    searchBox.setBounds(map.getBounds());
+  });
+
   infowindow = new google.maps.InfoWindow();
-  var request = {
-    location: sf,
-    radius: '1000',
-    query: 'tourist attraction'
-  };
-  var service = new google.maps.places.PlacesService(map);
-  service.textSearch(request, callback);
-}
 
-function callback(results, status) {
-  if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
-      createMarker(results[i]);
+  searchBox.addListener('places_changed', function() {
+    var places = searchBox.getPlaces();
+    if (places.length == 0) {
+      return;
     }
-  }
-}
 
-function createMarker(place) {
-  var placeLoc = place.geometry.location;
-  var marker = new google.maps.Marker({
-    map: map,
-    position: place.geometry.location
+    markers.forEach(function(marker) {
+      marker.setMap(null);
+    });
+    markers = [];
+
+    var bounds = new google.maps.LatLngBounds();
+    places.forEach(function(place) {
+      if (!place.geometry) {
+        console.log("Returned place contains no geometry");
+        return;
+      }
+
+      var marker = new google.maps.Marker({
+        map: map,
+        title: place.name,
+        position: place.geometry.location
+      });
+
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(place.name);
+        infowindow.open(map, this);
+        wikiLookup(place.name);
+      });
+
+      markers.push(marker);
+
+      if (place.geometry.viewport) {
+        // Only geocodes have viewport.
+        bounds.union(place.geometry.viewport);
+      } else {
+        bounds.extend(place.geometry.location);
+      }
+    });
+    map.fitBounds(bounds);
   });
 
-  google.maps.event.addListener(marker, 'click', function() {
-    infowindow.setContent(place.name);
-    infowindow.open(map, this);
-    wikiLookup(place.name);
-  });
+  // var request = {
+  //   location: sf,
+  //   radius: '1000',
+  //   query: 'tourist attraction'
+  // };
+//   var service = new google.maps.places.PlacesService(map);
+//   service.textSearch(request, callback);
+// }
+//
+// function callback(results, status) {
+//   if (status === google.maps.places.PlacesServiceStatus.OK) {
+//     for (var i = 0; i < results.length; i++) {
+//       createMarker(results[i]);
+//     }
+//   }
+// }
+//
+// function createMarker(place) {
+//   var placeLoc = place.geometry.location;
+//   var marker = new google.maps.Marker({
+//     map: map,
+//     position: place.geometry.location
+//   });
+//
+
 }
 
 function wikiLookup(place) {
